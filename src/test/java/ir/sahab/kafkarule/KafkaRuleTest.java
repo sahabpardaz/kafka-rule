@@ -42,7 +42,7 @@ public class KafkaRuleTest {
         checkTopicIsClear();
 
         KafkaProducer<byte[], byte[]> kafkaProducer = kafkaRuleWithSelfManagedZk.newProducer();
-        kafkaProducer.send(new ProducerRecord(TOPIC_NAME, "key".getBytes(), "value".getBytes()));
+        kafkaProducer.send(new ProducerRecord<>(TOPIC_NAME, "key".getBytes(), "value".getBytes()));
         kafkaProducer.close();
 
         KafkaConsumer<byte[], byte[]> kafkaConsumer = kafkaRuleWithSelfManagedZk.newConsumer();
@@ -74,7 +74,7 @@ public class KafkaRuleTest {
         }
         kafkaProducer.close();
 
-        KafkaConsumer kafkaConsumer = kafkaRule.newConsumer();
+        KafkaConsumer<byte[], byte[]> kafkaConsumer = kafkaRule.newConsumer();
         kafkaConsumer.subscribe(Collections.singletonList(TOPIC_NAME));
 
         int count = 0;
@@ -117,7 +117,7 @@ public class KafkaRuleTest {
         consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        KafkaConsumer kafkaConsumer = kafkaRule.newConsumer(consumerProps);
+        KafkaConsumer<String, String> kafkaConsumer = kafkaRule.newConsumer(consumerProps);
         kafkaConsumer.subscribe(Collections.singletonList(TOPIC_NAME));
 
         int count = 0;
@@ -134,13 +134,13 @@ public class KafkaRuleTest {
         makeTopicDirty();
     }
 
-    public void makeTopicDirty() {
+    private void makeTopicDirty() {
         KafkaProducer<byte[], byte[]> kafkaProducer = kafkaRule.newProducer();
-        kafkaProducer.send(new ProducerRecord(TOPIC_NAME, "key".getBytes(), "value".getBytes()));
+        kafkaProducer.send(new ProducerRecord<>(TOPIC_NAME, "key".getBytes(), "value".getBytes()));
         kafkaProducer.close();
     }
 
-    public void checkTopicIsClear() {
+    private void checkTopicIsClear() {
         KafkaConsumer<byte[], byte[]> kafkaConsumer = kafkaRule.newConsumer();
         kafkaConsumer.subscribe(Collections.singleton(TOPIC_NAME));
         ConsumerRecords<byte[], byte[]> records = kafkaConsumer.poll(1000);
