@@ -1,6 +1,6 @@
 # kafka-rule
-JUnit rule which provides an embedded Kafka server. The rule has also helper methods to get producers and consumers which are initialized to work with that Kafka server.
-The rule can initialize in two ways first setup an embedded Kafka server in the case that Kafka rule should setup its own embedded ZooKeeper server and second way work with external ZooKeeper server.
+JUnit rule which provides an embedded Kafka server. The rule has also helper methods to get producers and consumers by default or custom configuration to work with that Kafka server.
+The rule can initialize in two ways, first setup an embedded Kafka server in the case that it should setup its own embedded ZooKeeper server and second way setup embedded Kafka server that work with external ZooKeeper server.
 
 ## Sample Usage
 
