@@ -41,3 +41,4 @@ public void test(){
 ``` 
 ## Add it to your project
 You can reference to this library by either of java build systems (Maven, Gradle, SBT or Leiningen) using snippets from this jitpack link:
+[![](https://jitpack.io/v/sahabpardaz/uncaught-exception-rule.svg)](https://jitpack.io/#sahabpardaz/kafka-rule)
