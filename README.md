@@ -23,12 +23,12 @@ public void test() {
         kafkaProducer.send(new ProducerRecord(TOPIC_NAME, key, value));
     }
 
-    try (KafkaConsumer<String, String> kafkaConsumer = kafkaRule.newConsumer()) {
+    try (KafkaConsumer<byte[], byte[]> kafkaConsumer = kafkaRule.newConsumer()) {
         kafkaConsumer.subscribe(Collections.singleton(TOPIC_NAME));
-        ConsumerRecords<String, String> records = kafkaConsumer.poll(1000);
+        ConsumerRecords<byte[], byte[]> records = kafkaConsumer.poll(1000);
         Assert.assertEquals(1, records.size())
-        Assert.assertEquals(key, records.get(0).key());
-        Assert.assertEquals(value, records.get(0).value());
+        Assert.assertArrayEquals(key.getBytes(), records.get(0).key);
+        Assert.assertArrayEquals(value.getBytes(), records.get(0).value());
     }
 }
 ``` 
