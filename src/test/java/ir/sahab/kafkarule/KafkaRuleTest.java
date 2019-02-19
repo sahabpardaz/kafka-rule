@@ -33,7 +33,7 @@ public class KafkaRuleTest {
 
     private static Properties properties = new Properties();
     static {
-        properties.setProperty("a","b");
+        properties.setProperty("message.max.bytes","5000000");
     }
     @ClassRule
     public static KafkaRule kafkaRuleWithSpecificProperties = new KafkaRule(properties);
