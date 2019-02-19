@@ -31,6 +31,13 @@ public class KafkaRuleTest {
     @ClassRule
     public static KafkaRule kafkaRuleWithSelfManagedZk = new KafkaRule();
 
+    private static Properties properties = new Properties();
+    static {
+        properties.setProperty("a","b");
+    }
+    @ClassRule
+    public static KafkaRule kafkaRuleWithSpecificProperties = new KafkaRule(properties);
+
     @BeforeClass
     public static void before() {
         kafkaRuleWithSelfManagedZk.createTopic(TOPIC_NAME, 1);

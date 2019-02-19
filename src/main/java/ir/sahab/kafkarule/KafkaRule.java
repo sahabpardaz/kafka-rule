@@ -44,6 +44,8 @@ public class KafkaRule extends ExternalResource {
     private KafkaServerStartable broker;
     private File logDir;
 
+    private Properties additionalBrokerConfigs;
+
     private boolean selfManagedZooKeeper = false;
     private EmbeddedZkServer zkServer;
 
@@ -72,6 +74,30 @@ public class KafkaRule extends ExternalResource {
         initAddresses(zkAddress);
     }
 
+    /**
+     * Creates a rule to setup an embedded Kafka server in the case that Kafka rule should setup its
+     * own embedded ZooKeeper server.
+     *
+     * @param kafkaBrokerConfig additional kafka broker config.
+     */
+    public KafkaRule(Properties kafkaBrokerConfig){
+        this();
+        additionalBrokerConfigs = kafkaBrokerConfig;
+    }
+
+    /**
+     * Creates a rule to setup an embedded Kafka server in the case that there is a ZooKeeper server
+     * available and the Kafka broker is supposed to use that ZooKeeper.
+     *
+     * @param zkAddress the address of embedded ZooKeeper. It should be in format of "IP:PORT" and
+     * the IP should be one of the IPs of the local system.
+     * @param kafkaBrokerConfigs additional kafka broker configs.
+     */
+    public KafkaRule(String zkAddress, Properties kafkaBrokerConfigs){
+        this(zkAddress);
+        additionalBrokerConfigs = kafkaBrokerConfigs;
+    }
+
     @Override
     protected void before() throws Throwable {
         if (selfManagedZooKeeper) {
@@ -90,6 +116,9 @@ public class KafkaRule extends ExternalResource {
         kafkaBrokerConfig.setProperty("log.flush.interval.messages", "1");
         kafkaBrokerConfig.setProperty("auto.create.topics.enable", "true");
         kafkaBrokerConfig.setProperty("offsets.topic.replication.factor", "1");
+        if (additionalBrokerConfigs != null) {
+            kafkaBrokerConfig.putAll(additionalBrokerConfigs);
+        }
         broker = new KafkaServerStartable(new KafkaConfig(kafkaBrokerConfig));
         broker.startup();
     }
