@@ -3,7 +3,7 @@ JUnit rule which provides an embedded Kafka server. It can both setup its own ZK
 
 ## Sample Usage
 
-```
+```java
 private static final String TOPIC_NAME = "test-topic";
 
 @ClassRule
@@ -33,7 +33,7 @@ public void test() {
 }
 ``` 
 It is also possible to use a shared available ZK server by the Kafka rule:
-```
+```java
 private static final String ZK_ADDRESS = "127.0.1.1:" + anOpenPort();
 
 @ClassRule
