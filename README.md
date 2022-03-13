@@ -25,7 +25,7 @@ public void test() {
 
     try (KafkaConsumer<byte[], byte[]> kafkaConsumer = kafkaRule.newConsumer()) {
         kafkaConsumer.subscribe(Collections.singleton(TOPIC_NAME));
-        ConsumerRecords<byte[], byte[]> records = kafkaConsumer.poll(1000);
+        ConsumerRecords<byte[], byte[]> records = kafkaConsumer.poll(Duration.ofMillis(1000));
         Assert.assertEquals(1, records.size())
         Assert.assertArrayEquals(key.getBytes(), records.get(0).key);
         Assert.assertArrayEquals(value.getBytes(), records.get(0).value());
