@@ -24,14 +24,13 @@ import org.apache.kafka.common.security.JaasUtils;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.utils.Time;
-import org.apache.zookeeper.client.ZKClientConfig;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Some;
+import scala.Option;
 
 /**
  * JUnit rule which provides an embedded Kafka server.
@@ -180,7 +179,7 @@ public class KafkaRule extends ExternalResource {
     public void createTopic(String topicName, int numPartitions) {
         try (KafkaZkClient zkClient = KafkaZkClient
                 .apply(zkAddress, JaasUtils.isZkSaslEnabled(), 30000, 30000, MAX_IN_FLIGHT_REQUESTS,
-                        Time.SYSTEM, METRIC_GROUP, METRIC_TYPE, null, new Some<>(new ZKClientConfig()))) {
+                        Time.SYSTEM, METRIC_GROUP, METRIC_TYPE, Option.empty(), Option.empty())) {
 
             logger.info("Executing create Topic: " + topicName
                     + ", partitions: " + numPartitions
