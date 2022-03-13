@@ -1,6 +1,7 @@
 package ir.sahab.kafkarule;
 
 import ir.sahab.zookeeperrule.ZooKeeperRule;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -47,7 +48,7 @@ public class KafkaRuleTest {
 
         KafkaConsumer<byte[], byte[]> kafkaConsumer = kafkaRuleWithSelfManagedZk.newConsumer();
         kafkaConsumer.subscribe(Collections.singleton(TOPIC_NAME));
-        ConsumerRecords<byte[], byte[]> records = kafkaConsumer.poll(1000);
+        ConsumerRecords<byte[], byte[]> records = kafkaConsumer.poll(Duration.ofMillis(1000));
         for (ConsumerRecord<byte[], byte[]> record : records) {
             Assert.assertArrayEquals("key".getBytes(), record.key());
             Assert.assertArrayEquals("value".getBytes(), record.value());
@@ -79,7 +80,7 @@ public class KafkaRuleTest {
 
         int count = 0;
         while (count < numRecords) {
-            ConsumerRecords<byte[], byte[]> records = kafkaConsumer.poll(1000);
+            ConsumerRecords<byte[], byte[]> records = kafkaConsumer.poll(Duration.ofMillis(1000));
             for (ConsumerRecord<byte[], byte[]> record : records) {
                 Assert.assertArrayEquals((prefixKey + count).getBytes(), record.key());
                 Assert.assertArrayEquals((prefixValue + count).getBytes(), record.value());
@@ -122,7 +123,7 @@ public class KafkaRuleTest {
 
         int count = 0;
         while (count < numRecords) {
-            ConsumerRecords<String, String> records = kafkaConsumer.poll(1000);
+            ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(1000));
             for (ConsumerRecord<String, String> record : records) {
                 Assert.assertEquals(prefixKey + count, record.key());
                 Assert.assertEquals(prefixValue + count, record.value());
@@ -143,7 +144,7 @@ public class KafkaRuleTest {
     private void checkTopicIsClear() {
         KafkaConsumer<byte[], byte[]> kafkaConsumer = kafkaRule.newConsumer();
         kafkaConsumer.subscribe(Collections.singleton(TOPIC_NAME));
-        ConsumerRecords<byte[], byte[]> records = kafkaConsumer.poll(1000);
+        ConsumerRecords<byte[], byte[]> records = kafkaConsumer.poll(Duration.ofMillis(1000));
         Assert.assertTrue(records.isEmpty());
         kafkaConsumer.close();
     }

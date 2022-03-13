@@ -11,14 +11,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Properties;
-import kafka.admin.AdminUtils;
-import kafka.admin.RackAwareMode.Disabled$;
+import kafka.admin.RackAwareMode;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
-import kafka.utils.ZKStringSerializer$;
-import kafka.utils.ZkUtils;
-import org.I0Itec.zkclient.ZkClient;
-import org.I0Itec.zkclient.ZkConnection;
+import kafka.zk.AdminZkClient;
+import kafka.zk.KafkaZkClient;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -26,12 +23,15 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.security.JaasUtils;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
+import org.apache.kafka.common.utils.Time;
+import org.apache.zookeeper.client.ZKClientConfig;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Some;
 
 /**
  * JUnit rule which provides an embedded Kafka server.
@@ -39,6 +39,9 @@ import org.slf4j.LoggerFactory;
 public class KafkaRule extends ExternalResource {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaRule.class);
+    private static final int MAX_IN_FLIGHT_REQUESTS = 10;
+    private static final String METRIC_GROUP = "METRIC_GROUP";
+    private static final String METRIC_TYPE = "METRIC_TYPE";
 
     private String zkAddress;
     private String localIp;
@@ -175,21 +178,17 @@ public class KafkaRule extends ExternalResource {
     }
 
     public void createTopic(String topicName, int numPartitions) {
-        ZkClient zkClient = null;
-        ZkUtils zkUtils;
-        try {
-            // We have to pass the serializer class to ZkClient constructor Otherwise createTopic will return
-            // without error. The topic will exist in zookeeper and be returned when listing topics, but Kafka
-            // itself does not create the topic.
-            zkClient = new ZkClient(zkAddress, 30000, 30000, ZKStringSerializer$.MODULE$);
-            zkUtils = new ZkUtils(zkClient, new ZkConnection(zkAddress), JaasUtils.isZkSecurityEnabled());
-            logger.info("Executing create Topic: " + topicName + ", partitions: " + numPartitions
+        try (KafkaZkClient zkClient = KafkaZkClient
+                .apply(zkAddress, JaasUtils.isZkSaslEnabled(), 30000, 30000, MAX_IN_FLIGHT_REQUESTS,
+                        Time.SYSTEM, METRIC_GROUP, METRIC_TYPE, null, new Some<>(new ZKClientConfig()))) {
+
+            logger.info("Executing create Topic: " + topicName
+                    + ", partitions: " + numPartitions
                     + ", replication-factor: 1.");
-            AdminUtils.createTopic(zkUtils, topicName, numPartitions, 1, new Properties(), Disabled$.MODULE$);
-        } finally {
-            if (zkClient != null) {
-                zkClient.close();
-            }
+
+            AdminZkClient adminZkClient = new AdminZkClient(zkClient);
+            adminZkClient.createTopic(topicName, numPartitions, 1, new Properties(),
+                    RackAwareMode.Disabled$.MODULE$);
         }
     }
 

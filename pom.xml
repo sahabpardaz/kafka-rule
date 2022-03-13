@@ -6,12 +6,12 @@
 
     <groupId>ir.sahab</groupId>
     <artifactId>kafka-rule</artifactId>
-    <version>1.4.0</version>
+    <version>2.0.0</version>
 
     <properties>
-        <kafka.version>1.1.1</kafka.version>
+        <kafka.version>2.7.2</kafka.version>
     </properties>
-    
+
     <repositories>
         <repository>
             <id>jitpack.io</id>
